@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 
-# Simple Windows platform FFmpeg builder incorporating xfade-easing
+#==========================================================================================
+# FFmpeg + xfade-easing Windows build by Raymond Luckhurst, Scriptit UK, https://scriptit.uk
+# GitHub: https://github.com/scriptituk/ffmpeg-makexe   February 2025   MIT Licence
+#==========================================================================================
 
-# builds FFmpeg on Windows with libavfilter/vf_xfade.c patched for xfade-easing
-# requires MSYS2 - follow instructions at https://www.msys2.org
-# CLANG64/CLANGARM64/UCRT64/MINGW64 environment tools get installed as needed
+# Simple Windows platform FFmpeg builder incorporating xfade-easing
+#
+# Builds FFmpeg on Windows with libavfilter/vf_xfade.c patched for xfade-easing
+# Requires MSYS2 - follow instructions at https://www.msys2.org
+# CLANG64/CLANGARM64/UCRT64/MINGW64/etc. environment tools get installed as needed
 # MSYS environment builds a basic MSVC version (requires Microsoft Visual Studio)
-# to use LLVM clang-cl instead of MSVC cl export CC=clang-cl under MSYS
+# To use LLVM clang-cl instead of MSVC cl, export CC=clang-cl under MSYS
+#
+# See https://github.com/scriptituk/xfade-easing xfade-easing repo
+# See https://github.com/scriptituk/msys2-mcvars used to ingest MSVC environment
 
 DEBUG=${DEBUG-no} # set yes to echo commands for debugging
 
