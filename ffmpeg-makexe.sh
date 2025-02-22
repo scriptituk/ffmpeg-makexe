@@ -9,7 +9,7 @@
 #
 # Builds FFmpeg on Windows with libavfilter/vf_xfade.c patched for xfade-easing
 # Requires MSYS2 - follow instructions at https://www.msys2.org
-# CLANG64/CLANGARM64/UCRT64/MINGW64/etc. environment tools get installed as needed
+# UCRT64/CLANG64/CLANGARM64/MINGW64/MINGW32 environment tools get installed as needed
 # MSYS environment builds a basic MSVC version (requires Microsoft Visual Studio)
 # To use LLVM clang-cl instead of MSVC cl, export CC=clang-cl under MSYS
 #
@@ -137,7 +137,7 @@ echo "start $ENV build ------------------------------"
 
 case $ENV in
 
-mingw64) echo 'Warning: MINGW64 uses the old MSVCRT runtime library' ;&
+mingw64 | mingw32) echo "Warning: $ENV uses the old MSVCRT runtime library" ;&
 ucrt64 | clang64 | clangarm64)
 
 MPP=$MINGW_PACKAGE_PREFIX
@@ -156,7 +156,6 @@ pushd $build
 
 echo 'configure ------------------------------'
 if [[ ! -f Makefile ]]; then
-#gnutls needs p11-kit which uses ELF
     echo "CC=$CC \\" > conf
     echo "$rsrc/configure --extra-version=$EXTRA_VERSION \\" >> conf
     echo "--prefix=$prefix --shlibdir=$dso \\" >> conf
@@ -168,6 +167,7 @@ else
     echo "--disable-static --enable-shared \\" >> conf
 fi
     echo "--disable-ffplay \\" >> conf
+    # get pacman ffmpeg conf then disable options that break the build
     ffmpeg -hide_banner -buildconf | tee conf.orig | d2u | sed '
         s/^\s*//; /^$/d;
         /configuration:/d;
@@ -258,7 +258,7 @@ fi
 
 # ==================================================
 
-# Start Menu MSYS or c:\msys64\msys2_shell.cmd [-msys] [-use-full-path]
+# Start Menu MSYS or c:\msys64\msys2_shell.cmd [-msys]
 msvc | clangcl)
 
 if ! command -v $CC > /dev/null; then
@@ -369,7 +369,6 @@ if [[ ! -f Makefile ]]; then
         --extra-cflags='-MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12'
 fi
 
-#SHELL='sh -x'
 echo 'make ------------------------------'
 make $ec
 
