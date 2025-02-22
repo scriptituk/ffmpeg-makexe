@@ -80,7 +80,7 @@ To compile with `clang-cl` instead of `cl`, do `export CC=clang-cl` first, or r
 
 ClangCL builds slower than MSVC and produces larger binaries but runs faster.
 
-### MINGW builds
+### Shared clang/gcc builds
 
 The CLANG64/UCRT64/etc. environments build a ffmpeg.7z archive containing ffmpeg.exe and all its constituent DLLs.
 Requires [7-zip](https://www.7-zip.org/download.html).
