@@ -18,7 +18,7 @@ There are other, better FFmpeg Windows builder repos on GitHub but this one appl
 
 1. launch a MSYS2 Environment terminal from a shortcut in the Windows Start Menu (MSYS2 folder)
    or run `C:\msys64\msys2_shell.cmd -env` from a Command Prompt window
-   where `env` is `msys`/`urct64`/`clang64`/`clangarm64`/`minge64`/`mingw32`
+   where `env` is `msys`/`urct64`/`clang64`/`clangarm64`/`minge64`
 
    - MSYS environment (default) for a minimal static build using the MSVC or ClangCL toolchain
      - requires Microsoft Visual C++ installed and
@@ -30,7 +30,6 @@ There are other, better FFmpeg Windows builder repos on GitHub but this one appl
    - CLANG64 environment for a dynamic build using the clang toolchain
    - CLANGARM64 environment for a dynamic build using the clang toolchain – untested
    - MINGW64 environment for a dynamic build using the old msvcrt library – not recommended
-   - MINGW32 environment for a 32-bit dynamic build using the old msvcrt library – not recommended
 
    the type of build is determined by environment variable MSYSTEM which defaults to MSYS
 
