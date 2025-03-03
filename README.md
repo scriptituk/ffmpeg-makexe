@@ -1,4 +1,4 @@
-# FFmpeg with xfade-easing – native Windows Build
+# Build FFmpeg with xfade-easing on Windows
 
 ## Summary
 
