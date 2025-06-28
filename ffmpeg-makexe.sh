@@ -28,7 +28,7 @@ fi
 export TMP
 
 # set the ffmpeg stable tarball
-FFMPEG_REPO=https://ffmpeg.org/releases/ffmpeg-7.1.tar.gz
+FFMPEG_REPO=https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.gz
 
 # set installation directory
 INSTALL=/opt/scriptituk
@@ -366,7 +366,7 @@ if [[ ! -f Makefile ]]; then
         $rc \
         --enable-gpl --enable-libx264 --enable-zlib \
         --disable-ffplay --disable-debug --disable-doc \
-        --extra-cflags='-MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12'
+        --extra-cflags='-utf-8 -MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12'
 fi
 
 echo 'make ------------------------------'
