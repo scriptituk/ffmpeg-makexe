@@ -72,7 +72,7 @@ To compile with `clang-cl` instead of `cl`, do `export CC=clang-cl` first, or r
     --target-os=win64 --arch=x86_64 --enable-x86asm  
     --enable-gpl --enable-libx264 --enable-zlib  
     --disable-debug --disable-doc  
-    --extra-cflags='-MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12'
+    --extra-cflags='-utf-8 -MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12'
 ```
 
 (clang-cl is the same except for --prefix, --shlibdir, --toolchain)
