@@ -202,8 +202,6 @@ fi
 #/--enable-libssh/d;
 #/--enable-libvidstab/d;
 #/--enable-openal/d;
-# these break make
-/--enable-libx265/d;
 # test - keep it simple
 #/zlib/!d;
         s/$/ \\/
