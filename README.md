@@ -101,16 +101,28 @@ It creates a folder `FFmpeg\`.
     --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm
     --enable-libharfbuzz --enable-libjxl --enable-libmodplug --enable-libmp3lame
     --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg
-    --enable-libopus --enable-librsvg --enable-librtmp --enable-libssh
-    --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libvidstab
-    --enable-libx264 --enable-libxvid --enable-libvpx --enable-libwebp
+    --enable-libopus --enable-librtmp --enable-libssh --enable-libsoxr
+    --enable-libspeex --enable-libsrt --enable-libvidstab --enable-libx264
+    --enable-libx265 --enable-libxvid --enable-libvpx --enable-libwebp
     --enable-libxml2 --enable-libzimg --enable-libzvbi --enable-openal
-    --enable-pic --enable-postproc --enable-runtime-cpudetect --enable-swresample
-    --enable-version3 --enable-zlib --enable-librav1e --enable-libvpl
-    --enable-libsvtav1 --enable-liblc3
+    --enable-pic --enable-runtime-cpudetect --enable-swresample --enable-version3
+    --enable-zlib --enable-libvpl --enable-liblc3 --enable-librav1e
+    --enable-librsvg --enable-libsvtav1 --enable-libshaderc
 ```
 
 (UCRT64 is the same except for --prefix, --shlibdir, --cc, --cxx which show ucrt64 and gcc; similarly other environments)
+
+> [!NOTE]
+> Unlike other Windows FFmpeg builders (see [below](#see-also)), this build script does not build the external libraries used by ffmpeg.
+  Instead, it installs ffmpeg using a package installer which automatically installs those shared libraries.
+  Then it patches in [xfade-easing](https://github.com/scriptituk/xfade-easing) and pares down the configuration a bit to achieve a working executable.
+  As a result, running the built ffmpeg from a MSYS2 terminal (not Windows) picks up the system libraries, not the built ones.
+  To fix, change the `$PATH`, e.g.:\
+  `PATH=/opt/scriptituk/clang64/bin:/opt/scriptituk/clang64/so:$PATH ffmpeg.exe`\
+  or\
+  `export PATH=/opt/scriptituk/clang64/bin:/opt/scriptituk/clang64/so:$PATH`\
+  `ffmpeg.exe`\
+  (change `clang64` to `ucrt64` for the `gcc` toolchain)
 
 The clang toolchain builds faster than gcc and produces smaller binaries but runs slightly slower.
 
