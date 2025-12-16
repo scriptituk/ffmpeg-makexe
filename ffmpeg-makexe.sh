@@ -28,7 +28,7 @@ fi
 export TMP
 
 # set the ffmpeg stable tarball
-FFMPEG_REPO=https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.gz
+FFMPEG_REPO=https://ffmpeg.org/releases/ffmpeg-8.0.1.tar.gz
 
 # set installation directory
 INSTALL=/opt/scriptituk
@@ -118,7 +118,7 @@ _get $XE_SRC/xfade-easing.h
 _get $XE_SRC/vf_xfade.patch
 if [[ $ddown/xfade-easing.h -nt $src/libavfilter/xfade-easing.h ]]; then
     cp $ddown/xfade-easing.h $src/libavfilter/
-    rm -f $src/libavfilter/vf_xfade.o
+    rm -f $build/libavfilter/vf_xfade.o
 fi
 if [[ $ddown/vf_xfade.patch -nt $src/libavfilter/vf_xfade.c ]]; then
     cp $ddown/vf_xfade.patch $src/
@@ -176,6 +176,7 @@ fi
         /--arch=/d;
         /--disable-stripping/d;
         /--enable-shared/d;
+        /Exiting/d;
 # legacy - see https://trac.ffmpeg.org/wiki/TheoraVorbisEncodingGuide
 /--enable-libtheora/d;
 /--enable-libvorbis/d;
@@ -184,6 +185,7 @@ fi
 /--enable-vulkan/d;
 /--enable-nvenc/d;
 /--enable-amf/d;
+/--enable-postproc/d;
 # these break -static
 #/--enable-gnutls/d;
 #/--enable-libbluray/d;
