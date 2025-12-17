@@ -185,7 +185,6 @@ fi
 /--enable-vulkan/d;
 /--enable-nvenc/d;
 /--enable-amf/d;
-/--enable-postproc/d;
 # these break -static
 #/--enable-gnutls/d;
 #/--enable-libbluray/d;
@@ -224,7 +223,7 @@ if [[ $dbin/ffmpeg.exe -nt $ddist/ffmpeg.7z ]]; then
     mkdir -p $tmp
     rm -f $tmp/*
     dlls=($(ldd $dbin/ffmpeg.exe | awk '!/Windows/ { print $3 }'))
-    ln $dbin/ffmpeg.exe $tmp/
+    cp $dbin/ffmpeg.exe $tmp/
     while [[ ${#dlls[@]} -ne 0 ]]; do
         more=
         for d in "${dlls[@]}"; do
@@ -233,10 +232,10 @@ if [[ $dbin/ffmpeg.exe -nt $ddist/ffmpeg.7z ]]; then
                 if [[ -f $dso/$b ]]; then
                     d=$dso/$b
                 else
-                    more+=$(ldd $d | awk -v d=$d '!/Windows/ { if ($3 != d) print " " $3 }')
+                    more+=$(ldd $d | awk -v d=$d 'toupper($0) !~ /WINDOWS/ { if ($3 != d) print " " $3 }')
                 fi
                 echo -n " $b"
-                ln $d $tmp/
+                cp $d $tmp/
             fi
         done
         m="${dlls[*]}"
@@ -249,7 +248,7 @@ if [[ $dbin/ffmpeg.exe -nt $ddist/ffmpeg.7z ]]; then
         echo " ${#dlls[@]} more"
     done
     rm -f $ddist/ffmpeg.7z
-    7z a -mx9 $ddist/ffmpeg.7z $tmp
+    7z a -mx7 $ddist/ffmpeg.7z $tmp # see https://dotnetperls.com/7-zip-examples
     7z rn $ddist/ffmpeg.7z $(basename $tmp)/ FFmpeg/
     rm -fr $tmp
 fi
