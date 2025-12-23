@@ -2,133 +2,225 @@
 
 ## Summary
 
-A Bash script to automate building FFmpeg
-incorporating the [xfade-easing](https://github.com/scriptituk/xfade-easing) patches to the xfade filter
-natively from source on Windows under MSYS2.
+A Bash script to automate building FFmpeg natively from source on Windows under MSYS2,
+optionally incorporating [xfade-easing] patches.
 
-It can build
-- a minimal static version with just x264+zlib using MSVC or ClangCL
-- a richer dynamic configuration using clang or gcc toolchains under Mingw64.
+It can build:
+- a shared (DLL) version with rich configuration using clang or gcc toolchains under Mingw64;\
+  this does *not* build external libraries but links them in from a package-managed FFmpeg installation
+- a minimal static version with x264+zlib using MSVC or LLVM/clang-cl toolsets
 
-There are other, better FFmpeg Windows builder repos on GitHub but this one applies the patch for [xfade-easing](https://github.com/scriptituk/xfade-easing).
+This is much simpler than other build scripts for FFmpeg on Windows that build the external libraries too.
+
+The xfade superset filter [xfade-easing] provides enhanced video cross fade effects by default,
+but the `-n` option builds plain vanilla FFmpeg without it.
 
 ## Usage
 
-1. follow the [MSYS2 installation instructions](https://www.msys2.org)
+1. Follow the [MSYS2 installation instructions](https://www.msys2.org).
 
-1. launch a MSYS2 Environment terminal from a shortcut in the Windows Start Menu (MSYS2 folder)
-   or run `C:\msys64\msys2_shell.cmd -env` from a Command Prompt window
-   where `env` is one of `msys`/`urct64`/`clang64`/`clangarm64`/`mingw64`
+1. Launch a MSYS2 Environment terminal from a shortcut in the Windows Start Menu (MSYS2 folder)
+   or run `C:\msys64\msys2_shell.cmd -env` from a Command Prompt window
+   where `env` is one of `msys`/`urct64`/`clang64`/`clangarm64`/`mingw64`:
 
-   - MSYS environment (default) for a minimal static build using the MSVC or ClangCL toolchain
+   - MSYS environment (default) for a minimal static build using the MSVC or LLVM toolchain
      - requires Microsoft Visual C++ installed and
-       [msys2-vcvars.sh](https://github.com/scriptituk/msys2-vcvars/blob/main/msys2-vcvars.sh)
+       [msys2-vcvars\.sh](https://github.com/scriptituk/msys2-vcvars/blob/main/msys2-vcvars.sh)
        in same directory as ffmpeg-makexe\.sh
      - requires Visual Studio [Clang components](https://learn.microsoft.com/en-us/cpp/build/clang-support-msbuild#install-1)
-       to use the MSVC-compatible clang-cl compiler
-   - UCRT64 environment for a dynamic build using the gcc toolchain
-   - CLANG64 environment for a dynamic build using the clang toolchain
-   - CLANGARM64 environment for a dynamic build using the clang toolchain (untested)
-   - MINGW64 environment for a dynamic build using the old msvcrt library (not recommended)
+       to use the MSVC-compatible clang-cl compiler from LLVM
+   - UCRT64 environment for a shared build using the gcc toolchain
+   - CLANG64 environment for a shared build using the clang toolchain
+   - CLANGARM64 environment for a shared build using the clang toolchain *(untested)*
+   - MINGW64 environment for a shared build using the old msvcrt library *(not recommended)*
 
-   the type of build is determined by environment variable MSYSTEM which defaults to MSYS
+   The type of build is determined by environment variable MSYSTEM which defaults to MSYS.
 
-   for ClangCL run `export CC=clang-cl`
+   For clang-cl use option `-l` in the next step.
 
-1. download and run [ffmpeg-makexe.sh](ffmpeg-makexe.sh);
-   it creates binaries in
+1. Download and run [.\/ffmpeg-makexe\.sh](https://github.com/scriptituk/ffmpeg-makexe/blob/main/ffmpeg-makexe.sh);
+   it creates executables in
    `/opt/scriptituk/<env>/dist/`
-   where `<env>` is the MSYS2 MinGW environment, or `msvc` or `clangcl` for the MSYS environment
+   where `<env>` is the MSYS2 MinGW environment, or `msvc` or `clangcl` for the MSYS environment.
 
-1. manually copy the built binaries to `C:\Program Files\` and edit the `%PATH%` accordingly
+1. To install into Windows, run the generated batch script from an Administrator Command Prompt:\
+   `C:\msys64\opt\scriptituk\<env>\dist\install-ffmpeg.bat`\
+   or manually copy/unzip the built binaries to `"C:\Program Files\FFmpeg\"`.
 
-The script downloads all the required sources automatically
-and installs command tools and environment toolchains using `pacman`.
+1. The `install-ffmpeg.bat` script amends the Windows `%Path%` but to do so manually run:\
+   `set Path=%Path%;"C:\Program Files\FFmpeg;"`.\
+   To persist the change use `regedit` to set the `HKEY_LOCAL_MACHINE` `Path` value.
+
+All the required sources are downloaded automatically
+and all command tools and environment toolchains are installed using `pacman`.
+
+### CLI help
+
+Run `./ffmpeg-makexe.sh -h` for command-line usage and options:
+
+```
+Simple FFmpeg builder for the Windows platform, optionally with xfade-easing
+
+Requires MSYS2: follow instructions at https://www.msys2.org
+UCRT64/CLANG64/CLANGARM64/MINGW64 environment builds a feature-rich shared version
+MSYS environment builds a basic static version (requires Microsoft Visual Studio)
+ (to use LLVM/clang-cl instead of MSVC use option -l)
+All requisite tools are installed as needed via a package manager (pacman)
+ (ffmpeg too, to obviate building its constituent external libraries)
+The FFmpeg release built is the latest version supported by pacman
+
+Usage: ./ffmpeg-makexe.sh [options]
+Options:
+    -i <dir> set installation root (default /opt/scriptituk)
+    -l use LLVM (clang-cl) Visual Studio toolset instead of MSVC (MSYS only)
+    -g do not disable GPU options that can break configure (not MSYS)
+    -c <opts> append options to ffmpeg configure command (not MSYS)
+       (-c cannot enable external libraries that are not installed)
+    -n do not patch in xfade-easing superset, just build vanilla FFmpeg instead
+    -r rebuild from scratch (removes cached downloads and build trees)
+    -d <flags> set debug flags (e.g. -d SL):
+       S trace shell command execution (set -x)
+       M trace makefile recipe execution (--debug=print)
+       L enable logging to ./ffmpeg-makexe-<environment>.log
+       T use ./tmp/ for temporary files and keep them on exit
+    -h print this message
+
+See https://github.com/scriptituk/ffmpeg-makexe for more information
+See https://github.com/scriptituk/xfade-easing for xfade-easing usage
+See https://github.com/scriptituk/msys2-mcvars used to ingest MSVC environment
+```
+
+### Release
+
+The version built is the latest FFmpeg release supported by pacman.
+This is because external library dependencies work with that release but may not work with earlier releases.
+The static build will almost certainly work however, so perhaps that should be an option.
+
+### xfade-easing
+
+You can switch [xfade-easing] support in or out with the `-n` option.
+This does not cause `configure` to re-run; it just re-compiles `libavfilter/vf_xfade.c` and re-installs.
+So if you want a plain FFmpeg build run `./ffmpeg-makexe.sh -n`.
 
 ## Details
 
 There are two versions: a static ffmpeg.exe and a [7-zip](https://www.7-zip.org/) archive containing ffmpeg.exe and dependent DLLs.
 
-### Static MSVC builds
+### Static Visual Studio builds
 
-The MSYS environment builds a minimal static ffmpeg.exe with x264 encoding and zlib for PNG decoding.
-It is based on [Roxlu’s guide](https://www.roxlu.com/2019/062/compiling-ffmpeg-with-x264-on-windows-10-using-msvc).
+The MSYS environment builds a minimal static ffmpeg.exe with x264 encoding and zlib for PNG decoding based on [Roxlu’s guide](https://www.roxlu.com/2019/062/compiling-ffmpeg-with-x264-on-windows-10-using-msvc).
 
-It executes the Visual Studio `vcvarsall.bat` script to ingest the MSVC development environment using
-[msys2-vcvars](https://github.com/scriptituk/msys2-vcvars) .
+It executes the Visual Studio `vcvarsall.bat` script to ingest the MSVC development environment using [msys2-vcvars].
 
-If more than one instance of `vcvarsall.bat` is found then set `VCVARSALL_PATH` to the absolute path (Windows or Unix)
+If more than one instance of `vcvarsall.bat` is found then set `VCVARSALL_PATH` to the absolute path (Windows or Unix format)
 of the required instance.
 
-To compile with `clang-cl` instead of `cl`, do `export CC=clang-cl` first, or run `CC=clang-cl ffmpeg-makexe.sh`.
+To compile with LLVM `clang-cl` instead of MSVC `cl`, use option `-l`.
 
-#### Configuration:
+#### Static binaries
+
+The built executables `ffmpeg.exe` and `ffprobe.exe` and install script `install-ffmpeg.bat` are at:
+
+- `/opt/scriptituk/clangcl/dist/` for LLVM/clang-cl (option `-l`)\
+  = `C:\msys64\opt\scriptituk\clangcl\dist\` from Windows
+- `/opt/scriptituk/msvc/dist/` for MSVC\
+  = `C:\msys64\opt\scriptituk\msvc\dist\` from Windows
+
+#### Static installer
+
+This is `install-ffmpeg.bat` for MSVC; only the source path differs.
 
 ```
-    --extra-version=scriptituk/xfade-easing  
-    --prefix=/opt/scriptituk/msys  
-    --pkg-config=pkgconf --pkg-config-flags=--static  
-    --enable-static --disable-shared --toolchain=msvc  
-    --target-os=win64 --arch=x86_64 --enable-x86asm  
-    --enable-gpl --enable-libx264 --enable-zlib  
-    --disable-debug --disable-doc  
-    --extra-cflags='-utf-8 -MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12'
+@if exist "C:\Program Files\FFmpeg" del /q "C:\Program Files\FFmpeg"
+xcopy C:\msys64\opt\scriptituk\msvc\dist\ff*.exe "C:\Program Files\FFmpeg\" /y
+@rem TODO: set HKLM Path without changing REG_EXPAND_SZ to REG_SZ type
+@if "%Path%"=="%Path:C:\Program Files\FFmpeg;=%" set Path=%Path%;C:\Program Files\FFmpeg;
 ```
 
-(clang-cl is the same except for --prefix, --shlibdir, --toolchain)
+#### Static configuration
 
-ClangCL builds slower than MSVC and produces larger binaries but runs faster.
+This is for MSVC; clang-cl has the same components.
+
+```
+configuration:
+  --extra-version=scriptituk/ffmpeg-makexe --prefix=/opt/scriptituk/msvc
+  --enable-static --disable-shared
+  --target-os=win64 --arch=x86_64 --pkg-config-flags=--static
+  --toolchain=msvc
+  --extra-cflags='-utf-8 -MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12'
+  --disable-ffplay --disable-debug --disable-doc
+  --enable-gpl --enable-libx264 --enable-zlib
+```
 
 ### Shared clang/gcc builds
 
 The CLANG64/UCRT64/etc. environments build a ffmpeg.7z archive containing ffmpeg.exe and all its constituent DLLs.
-Requires [7-zip](https://www.7-zip.org/download.html).
+Requires [7-zip](https://www.7-zip.org/download.html) to extract.
 
-Extract to `C:\Program Files\`.
-It creates a folder `FFmpeg\`.
+#### GPU options
 
-#### Configuration:
+FFmpeg options that use GPU hardware acceleration can break configuration tests,
+especially when building with virtualization tools or WSL pre- Windows 11.
+These are disabled by default but option `-g` restores them.
+
+#### Shared binaries
+
+The built executables `ffmpeg.exe`, `ffprobe.exe` and shared DLLs are compressed into `ffmpeg.7z`.
+That and the install script `install-ffmpeg.bat` are at:
+
+- `/opt/scriptituk/clang64/dist/` for LLVM/Clang\
+  = `C:\msys64\opt\scriptituk\clang64\dist\` from Windows
+- `/opt/scriptituk/ucrt64/dist/` for gcc\
+  = `C:\msys64\opt\scriptituk\ucrt64\dist\` from Windows
+
+#### Shared installer
+
+This is `install-ffmpeg.bat` for CLANG64; only the source path differs.
 
 ```
-    --extra-version=scriptituk/xfade-easing
-    --prefix=/opt/scriptituk/clang64 --shlibdir=/opt/scriptituk/clang64/so
-    --arch=x86_64 --target-os=mingw32 --cc=clang --cxx=clang++
-    --disable-static --enable-shared
-    --disable-ffplay --disable-debug --disable-doc
-    --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-frei0r --enable-gmp
-    --enable-gnutls --enable-gpl --enable-iconv --enable-libaom --enable-libass
-    --enable-libbluray --enable-libcaca --enable-libdav1d --enable-libfontconfig
-    --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm
-    --enable-libharfbuzz --enable-libjxl --enable-libmodplug --enable-libmp3lame
-    --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg
-    --enable-libopus --enable-librtmp --enable-libssh --enable-libsoxr
-    --enable-libspeex --enable-libsrt --enable-libvidstab --enable-libx264
-    --enable-libx265 --enable-libxvid --enable-libvpx --enable-libwebp
-    --enable-libxml2 --enable-libzimg --enable-libzvbi --enable-openal
-    --enable-pic --enable-runtime-cpudetect --enable-swresample --enable-version3
-    --enable-zlib --enable-libvpl --enable-liblc3 --enable-librav1e
-    --enable-librsvg --enable-libsvtav1 --enable-libshaderc
+@where 7z 2> nul || ( echo "7z not found" & exit /b )
+@if exist "C:\Program Files\FFmpeg" del /q "C:\Program Files\FFmpeg"
+7z x C:\msys64\opt\scriptituk\clang64\dist\ffmpeg.7z -o"C:\Program Files"
+@rem TODO: set HKLM Path without changing REG_EXPAND_SZ to REG_SZ type
+@if "%Path%"=="%Path:C:\Program Files\FFmpeg;=%" set Path=%Path%;C:\Program Files\FFmpeg;
 ```
 
-(UCRT64 is the same except for --prefix, --shlibdir, --cc, --cxx which show ucrt64 and gcc; similarly other environments)
+#### Shared configuration
 
-> [!NOTE]
-> Unlike other Windows FFmpeg builders (see [below](#see-also)), this build script does not build the external libraries used by ffmpeg.
-  Instead, it installs ffmpeg using a package installer which automatically installs those shared libraries.
-  Then it patches in [xfade-easing](https://github.com/scriptituk/xfade-easing) and pares down the configuration a bit to achieve a working executable.
-  As a result, running the built ffmpeg from a MSYS2 terminal (not Windows) picks up the system libraries, not the built ones.
-  To fix, change the `$PATH`, e.g.:\
-  `PATH=/opt/scriptituk/clang64/bin:/opt/scriptituk/clang64/so:$PATH ffmpeg.exe`\
-  or\
-  `export PATH=/opt/scriptituk/clang64/bin:/opt/scriptituk/clang64/so:$PATH`\
-  `ffmpeg.exe`\
-  (change `clang64` to `ucrt64` for the `gcc` toolchain)
+This is for CLANG64; UCRT64 etc. have the same components.
 
-The clang toolchain builds faster than gcc and produces smaller binaries but runs slightly slower.
+```
+configuration:
+  --extra-version=scriptituk/ffmpeg-makexe
+  --prefix=/opt/scriptituk/clang64 --shlibdir=/opt/scriptituk/clang64/so
+  --target-os=mingw32 --arch=x86_64 --cc=clang --cxx=clang++
+  --disable-static --enable-shared --disable-debug --disable-ffplay --disable-doc
+  --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-frei0r --enable-gmp
+  --enable-gnutls --enable-gpl --enable-iconv --enable-libaom --enable-libass
+  --enable-libbluray --enable-libcaca --enable-libdav1d --enable-libfontconfig
+  --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm
+  --enable-libharfbuzz --enable-libjxl --enable-libmodplug --enable-libmp3lame
+  --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg
+  --enable-libopus --enable-librtmp --enable-libssh --enable-libsoxr
+  --enable-libspeex --enable-libsrt --enable-libtheora --enable-libvidstab
+  --enable-libvorbis --enable-libx264 --enable-libx265 --enable-libxvid
+  --enable-libvpx --enable-libwebp --enable-libxml2 --enable-libzimg
+  --enable-libzvbi --enable-openal --enable-pic --enable-runtime-cpudetect
+  --enable-swresample --enable-version3 --enable-zlib --enable-libvpl
+  --enable-liblc3 --enable-librav1e --enable-librsvg --enable-libsvtav1
+  --enable-libshaderc
+```
 
-## Performance
+#### Path conflict
 
-Interestingly, ClangCL runs fastest, then MSVC, with MinGW gcc a little faster than MinGW clang.
+Running the shared-library ffmpeg from a MSYS2 terminal (not Windows) picks up the system libraries, not the built ones,
+so, modify the `$PATH`:\
+`PATH=/opt/scriptituk/clang64/bin:/opt/scriptituk/clang64/so:$PATH ffmpeg.exe`\
+(change `clang64` to `ucrt64` for the `gcc` build).
+
+#### Static build
+
+Attempts at a static build using package-managed external components is quite convoluted but this may be revisited.
 
 ## See also
 
@@ -137,5 +229,9 @@ Interestingly, ClangCL runs fastest, then MSVC, with MinGW gcc a little faster t
 - [Msys2 Environments](https://www.msys2.org/docs/environments/) – environment for building, installing and running native Windows software
 - [Visual Studio Community Edition](https://visualstudio.microsoft.com/vs/community/) – free Microsoft Visual Studio Community edition
 - [ffmpeg-windows-build-helpers](https://github.com/rdp/ffmpeg-windows-build-helpers) – cross compiles Windows 32/64-bit FFmpeg tools and dependencies
-- [media-autobuild_suite](https://github.com/m-ab-s/media-autobuild_suite) – Windows Batchscript builds Mingw-w64/GCC ffmpeg and other media tools
+- [media-autobuild_suite](https://github.com/m-ab-s/media-autobuild_suite) – Windows Batchscript, builds Mingw-w64/GCC FFmpeg and other media tools
+- [MultimediaTools-mingw-w64](https://github.com/Warblefly/MultimediaTools-mingw-w64) – scripts to cross-compile multimedia tools, inc. FFmpeg, for Windows
 - [Roxlu’s guide](https://www.roxlu.com/2019/062/compiling-ffmpeg-with-x264-on-windows-10-using-msvc) – Compiling FFmpeg with X264 on Windows 10 using MSVC
+
+[xfade-easing]: https://github.com/scriptituk/xfade-easing
+[msys2-vcvars]: https://github.com/scriptituk/msys2-vcvars
