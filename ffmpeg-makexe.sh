@@ -39,7 +39,7 @@ Options:
     -g do not disable GPU options that can break configure (not MSYS)
     -c <opts> append options to ffmpeg configure command (not MSYS)
        (-c cannot enable external libraries that are not installed)
-    -n do not patch in xfade-easing superset, just build vanilla FFmpeg instead
+    -n do not patch in xfade-easing, just build vanilla FFmpeg instead
     -r rebuild from scratch (removes cached downloads and build trees)
     -d <flags> set debug flags (e.g. -d SL):
        S trace shell command execution (set -x)
@@ -49,8 +49,8 @@ Options:
     -h print this message
 
 See https://github.com/scriptituk/ffmpeg-makexe for more information
-See https://github.com/scriptituk/xfade-easing for xfade-easing usage
 See https://github.com/scriptituk/msys2-mcvars used to ingest MSVC environment
+See https://github.com/scriptituk/xfade-easing for xfade-easing usage
 EOT
 }
 
@@ -400,8 +400,8 @@ if [[ ! -f Makefile ]]; then
     fi
     TMP=$(realpath --relative-to=$PWD $TMP) \
     $rsrc/configure --extra-version=$extra_version \
-        --prefix=$prefix --enable-static --disable-shared \
-        --target-os=win64 --arch=$arch --pkg-config-flags=--static \
+        --prefix=$prefix --disable-shared --enable-static --pkg-config-flags=--static \
+        --target-os=win64 --arch=$arch \
         $tc \
         --extra-cflags='-utf-8 -MT -wd4090 -wd4101 -wd4113 -wd4114 -wd4133 -Wv:12' \
         --disable-ffplay --disable-debug --disable-doc \
