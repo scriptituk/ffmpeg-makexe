@@ -1,4 +1,4 @@
-# Build FFmpeg with xfade-easing on Windows
+# Build FFmpeg on Windows with/without xfade-easing
 
 ## Summary
 
@@ -209,6 +209,7 @@ configuration:
   --enable-swresample --enable-version3 --enable-zlib --enable-libvpl
   --enable-liblc3 --enable-librav1e --enable-librsvg --enable-libsvtav1
   --enable-libshaderc
+
 ```
 
 #### MSYS2 path
