@@ -95,9 +95,9 @@ _chkxe() { # check compiled xfade-easing corresponds with -n option
     ! grep -q 'xfade-easing\.h' $build/libavfilter/vf_xfade.d; isxe=$?
     [[ $isxe -eq $noxe ]] && rm -f $build/libavfilter/vf_xfade.o
     if [[ -n $o_noxe ]]; then
-        cp -p $xfd/vf_xfade.c.orig $xfd/vf_xfade.c
+        [[ -f $xfd/vf_xfade.c.orig ]] && cp -p $xfd/vf_xfade.c.orig $xfd/vf_xfade.c
     else
-        cp -p $xfd/vf_xfade.c.xe $xfd/vf_xfade.c
+        [[ -f $xfd/vf_xfade.c.xe ]] && cp -p $xfd/vf_xfade.c.xe $xfd/vf_xfade.c
     fi
 }
 
@@ -189,6 +189,7 @@ if ! cmp -s $ddown/xfade-easing.h $xfd/xfade-easing.h; then
     cp $ddown/xfade-easing.h $xfd/
 fi
 if ! cmp -s $ddown/vf_xfade.patch $src/vf_xfade.patch; then
+    [[ -f $xfd/vf_xfade.c.orig ]] && cp -p $xfd/vf_xfade.c.orig $xfd/vf_xfade.c
     cp $ddown/vf_xfade.patch $src/
     patch -b -u -N -p0 -d $src -i vf_xfade.patch
     cp -p $xfd/vf_xfade.c $xfd/vf_xfade.c.xe
