@@ -1,6 +1,8 @@
-# Build FFmpeg on Windows with/without xfade-easing
+# Build FFmpeg with xfade-easing on Windows
 
 ## Summary
+
+<img src="ffmpeg-makexe.png" alt="Summary" align="right">
 
 A simple Bash script to automate building FFmpeg natively from source on Windows under MSYS2,
 optionally incorporating [xfade-easing] patches.
@@ -209,7 +211,6 @@ configuration:
   --enable-swresample --enable-version3 --enable-zlib --enable-libvpl
   --enable-liblc3 --enable-librav1e --enable-librsvg --enable-libsvtav1
   --enable-libshaderc
-
 ```
 
 #### MSYS2 path
