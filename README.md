@@ -211,7 +211,6 @@ configuration:
   --enable-swresample --enable-version3 --enable-zlib --enable-libvpl
   --enable-liblc3 --enable-librav1e --enable-librsvg --enable-libsvtav1
   --enable-libshaderc
-
 ```
 
 #### MSYS2 path
