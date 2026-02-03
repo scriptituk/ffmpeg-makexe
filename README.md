@@ -2,7 +2,7 @@
 
 ## Summary
 
-<img src="ffmpeg-makexe.png" alt="Summary" align="right">
+<img src="ffmpeg-makexe.svg" alt="Summary" width="120" align="right">
 
 A simple Bash script to automate building FFmpeg natively from source on Windows under MSYS2,
 optionally incorporating [xfade-easing] patches.
@@ -211,6 +211,7 @@ configuration:
   --enable-swresample --enable-version3 --enable-zlib --enable-libvpl
   --enable-liblc3 --enable-librav1e --enable-librsvg --enable-libsvtav1
   --enable-libshaderc
+
 ```
 
 #### MSYS2 path
