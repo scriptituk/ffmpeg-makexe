@@ -90,14 +90,23 @@ _ldd() { # get shared libraries in environment
 }
 
 _chkxe() { # check compiled xfade-easing corresponds with -n option
-    local noxe isxe
+    local noxe isxe d=$build/libavfilter/vf_xfade.d
     ! test -n "$o_noxe"; noxe=$?
-    ! grep -q 'xfade-easing\.h' $build/libavfilter/vf_xfade.d; isxe=$?
+    test -f $d && grep -qv 'xfade-easing\.h' $d; isxe=$?
     [[ $isxe -eq $noxe ]] && rm -f $build/libavfilter/vf_xfade.o
     if [[ -n $o_noxe ]]; then
         [[ -f $xfd/vf_xfade.c.orig ]] && cp -p $xfd/vf_xfade.c.orig $xfd/vf_xfade.c
     else
         [[ -f $xfd/vf_xfade.c.xe ]] && cp -p $xfd/vf_xfade.c.xe $xfd/vf_xfade.c
+    fi
+}
+
+_chkv() { # check and hack file conflict: ffmpeg/VERSION vs /clang64/include/c++/v1/version
+    local v=$src/VERSION t=$src/_VERSION
+    if [[ $1 =~ clang ]]; then # rename
+        test -f $v && mv $v $t
+    else # restore filename
+        test -f $t && mv $t $v
     fi
 }
 
@@ -250,7 +259,9 @@ fi
 
 echo "make $package ------------------------------"
 _chkxe
+_chkv $env
 make $md ECFLAGS=-Wno-declaration-after-statement || _err 'make failed'
+_chkv
 
 echo "install $package ------------------------------"
 [[ ffmpeg.exe -nt $dbin/ffmpeg.exe ]] && { make $md install || _err 'make install failed'; }
