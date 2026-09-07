@@ -102,7 +102,7 @@ _chkxe() { # check compiled xfade-easing corresponds with -n option
 }
 
 _chkv() { # check and hack file conflict: ffmpeg/VERSION vs /clang64/include/c++/v1/version
-    local v=$src/VERSION t=$src/_VERSION
+    local v=$src/VERSION t=$src/FF_VERSION
     if [[ $1 =~ clang ]]; then # rename
         test -f $v && mv $v $t
     else # restore filename
