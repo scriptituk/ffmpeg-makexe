@@ -209,7 +209,7 @@ configuration:
   --enable-libzvbi --enable-openal --enable-pic --enable-runtime-cpudetect
   --enable-swresample --enable-version3 --enable-zlib --enable-libvpl
   --enable-liblc3 --enable-librav1e --enable-librsvg --enable-libsvtav1
-  --enable-libshaderc
+  --enable-whisper
 ```
 
 #### MSYS2 path
