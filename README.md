@@ -19,7 +19,7 @@ but the `-n` option builds plain vanilla FFmpeg without it.
 
 ## Usage
 
-1. Follow the [MSYS2 installation instructions](https://www.msys2.org).
+1. Follow the simple [MSYS2 installation instructions](https://www.msys2.org).
 
 1. Launch a MSYS2 Environment terminal from a shortcut in the Windows Start Menu (MSYS2 folder)
    or run `C:\msys64\msys2_shell.cmd -env` from a Command Prompt window
