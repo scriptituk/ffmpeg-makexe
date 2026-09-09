@@ -91,8 +91,8 @@ _ldd() { # get shared libraries in environment
 
 _chkxe() { # check compiled xfade-easing corresponds with -n option
     local noxe isxe d=$build/libavfilter/vf_xfade.d
-    ! test -n "$o_noxe"; noxe=$?
-    test -f $d && grep -qv 'xfade-easing\.h' $d; isxe=$?
+    [[ -n $o_noxe ]]; noxe=$?
+    [[ -f $d ]] && grep -q 'xfade-easing\.h' $d; isxe=$?
     [[ $isxe -eq $noxe ]] && rm -f $build/libavfilter/vf_xfade.o
     if [[ -n $o_noxe ]]; then
         [[ -f $xfd/vf_xfade.c.orig ]] && cp -p $xfd/vf_xfade.c.orig $xfd/vf_xfade.c
@@ -218,7 +218,6 @@ echo 'get externals ------------------------------'
 # install essential tools
 _req $mpp-toolchain
 _req $mpp-nasm
-_req p7zip
 
 # install ffmpeg to get external components
 _req $mpp-ffmpeg
@@ -269,24 +268,24 @@ echo "install $package ------------------------------"
 popd >> $log
 
 echo "release $package ------------------------------"
-if [[ $dbin/ffmpeg.exe -nt $ddist/ffmpeg.7z ]]; then
-    zip=$ddist/FFmpeg
-    rm -f $zip
-    mkdir -p $zip
+if [[ $dbin/ffmpeg.exe -nt $ddist/ffmpeg.tar ]]; then
+    tar=$ddist/FFmpeg
+    rm -f $tar
+    mkdir -p $tar
     dlls=($(_ldd $dbin/ffmpeg.exe))
-    cp $dbin/ffmpeg.exe $dbin/ffprobe.exe $zip/
+    cp $dbin/ffmpeg.exe $dbin/ffprobe.exe $tar/
     while [[ ${#dlls[@]} -ne 0 ]]; do
         more=
         for l in "${dlls[@]}"; do
             b=$(basename $l)
-            if [[ ! -f $zip/$b ]]; then
+            if [[ ! -f $tar/$b ]]; then
                 if [[ -f $dso/$b ]]; then
                     l=$dso/$b
                 else
                     more+=$(_ldd $l)
                 fi
                 echo -n " $b"
-                cp $l $zip/
+                cp $l $tar/
             fi
         done
         m="${dlls[*]}"
@@ -298,9 +297,9 @@ if [[ $dbin/ffmpeg.exe -nt $ddist/ffmpeg.7z ]]; then
         done
         echo " ${#dlls[@]} more"
     done
-    rm -f $ddist/ffmpeg.7z
-    7z a -mx7 $ddist/ffmpeg.7z $zip # see https://dotnetperls.com/7-zip-examples
-    rm -fr $zip
+    rm -f $ddist/ffmpeg.tar
+    tar -C $ddist -cf $ddist/ffmpeg.tar FFmpeg
+    rm -fr $tar
 fi
 
 ;; # end case
@@ -455,11 +454,11 @@ else
     wdist=$(cygpath -awl $ddist)
     bat=$ddist/install-ffmpeg.bat
     wbat=$(cygpath -awl $bat)
-    del="@if exist \"$wpff\" del /q \"$wpff\""$'\n'
-    cp="${del}xcopy $wdist\\ff*.exe \"$wpff\\\" /y"
-    if [[ -f $ddist/ffmpeg.7z ]]; then
-        cp="@where 7z 2> nul || ( echo \"7z not found\" & exit /b )"$'\n'
-        cp+="${del}7z x $wdist\\ffmpeg.7z -o\"${wpff%\\*}\""
+    cp="@if exist \"$wpff\" del /q \"$wpff\""$'\n'
+    if [[ -f $ddist/ffmpeg.tar ]]; then
+        cp+="tar -C \"${wpff%\\*}\" -xf $wdist\\ffmpeg.tar"
+    else
+        cp+="xcopy $wdist\\ff*.exe \"$wpff\\\" /y"
     fi
     cat << EOT | u2d > $bat
 $cp
