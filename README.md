@@ -105,7 +105,7 @@ So for a plain FFmpeg build, run `./ffmpeg-makexe.sh -n`.
 
 ## Details
 
-There are two versions: a static ffmpeg.exe and a [7-zip](https://www.7-zip.org/) archive containing ffmpeg.exe and dependent DLLs,
+There are two versions: a static ffmpeg.exe and a [tar](https://learn.microsoft.com/en-us/windows/tar/) archive containing ffmpeg.exe and dependent DLLs,
 both include the [ffprobe] utility.
 
 ### Static Visual Studio builds
@@ -156,8 +156,8 @@ configuration:
 
 ### Shared clang/gcc builds
 
-The CLANG64/UCRT64/etc. environments build a ffmpeg.7z archive containing ffmpeg.exe and all its constituent DLLs.
-Requires [7-zip](https://www.7-zip.org/download.html) to extract.
+The CLANG64/UCRT64/etc. environments build a ffmpeg.tar archive containing ffmpeg.exe and all its constituent DLLs.
+The `tar` tool was added to Windows 10 in 2018.
 
 #### GPU options
 
@@ -167,7 +167,7 @@ These are disabled by default but option `-g` restores them.
 
 #### Shared binaries
 
-The built executables `ffmpeg.exe`, `ffprobe.exe` and shared DLLs are compressed into `ffmpeg.7z`.
+The built executables `ffmpeg.exe`, `ffprobe.exe` and shared DLLs are archived into `ffmpeg.tar`.
 That and the install script `install-ffmpeg.bat` are at:
 
 - `/opt/scriptituk/clang64/dist/` for LLVM/Clang\
@@ -180,9 +180,8 @@ That and the install script `install-ffmpeg.bat` are at:
 This is `install-ffmpeg.bat` for CLANG64; only the source path differs.
 
 ```
-@where 7z 2> nul || ( echo "7z not found" & exit /b )
 @if exist "C:\Program Files\FFmpeg" del /q "C:\Program Files\FFmpeg"
-7z x C:\msys64\opt\scriptituk\clang64\dist\ffmpeg.7z -o"C:\Program Files"
+tar -C "C:\Program Files" -xf C:\msys64\opt\scriptituk\clang64\dist\ffmpeg.tar
 @rem TODO: set HKLM Path without changing REG_EXPAND_SZ to REG_SZ type
 @if "%Path%"=="%Path:C:\Program Files\FFmpeg;=%" set Path=%Path%;C:\Program Files\FFmpeg;
 ```
